@@ -1497,8 +1497,9 @@ def bbox_elastic_transform(
     )
     try:
         bbox = normalize_bbox(mask_to_bbox(mask), rows, cols)
+        # bbox = (bbox[0], bbox[1], bbox[3], bbox[2])
     except IndexError:
-        bbox = (bbox[0], bbox[1], 0.0, 0.0)
+        bbox = (bbox[0], bbox[1], bbox[0], bbox[1])
     return bbox
 
 
