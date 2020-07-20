@@ -38,7 +38,7 @@ class BboxProcessor(DataProcessor):
 
     def filter(self, data, rows, cols):
         return filter_bboxes(
-            data, rows, cols, min_area=self.params.min_area, min_visibility=self.params.min_visibility
+            data, rows, cols, min_area=self.params.min_area, min_visibility=self.params.min_visibility,
         )
 
     def check(self, data, rows, cols):
@@ -48,7 +48,9 @@ class BboxProcessor(DataProcessor):
         return convert_bboxes_from_albumentations(data, self.params.format, rows, cols, check_validity=True)
 
     def convert_to_albumentations(self, data, rows, cols):
-        return convert_bboxes_to_albumentations(data, self.params.format, rows, cols, check_validity=True)
+        conversion = convert_bboxes_to_albumentations(data, self.params.format, rows, cols, check_validity=True)
+        print(conversion)
+        return conversion
 
 
 def normalize_bbox(bbox, rows, cols):
@@ -158,7 +160,7 @@ def calculate_bbox_area(bbox, rows, cols):
 
 
 def filter_bboxes_by_visibility(
-    original_shape, bboxes, transformed_shape, transformed_bboxes, threshold=0.0, min_area=0.0
+    original_shape, bboxes, transformed_shape, transformed_bboxes, threshold=0.0, min_area=0.0,
 ):
     """Filter bounding boxes and return only those boxes whose visibility after transformation is above
     the threshold and minimal area of bounding box in pixels is more then min_area.

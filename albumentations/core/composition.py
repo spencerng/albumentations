@@ -13,7 +13,14 @@ from albumentations.core.utils import format_args, Params
 from albumentations.augmentations.bbox_utils import BboxProcessor
 from albumentations.core.serialization import SERIALIZABLE_REGISTRY, instantiate_lambda
 
-__all__ = ["Compose", "OneOf", "OneOrOther", "BboxParams", "KeypointParams", "ReplayCompose"]
+__all__ = [
+    "Compose",
+    "OneOf",
+    "OneOrOther",
+    "BboxParams",
+    "KeypointParams",
+    "ReplayCompose",
+]
 
 
 REPR_INDENT_STEP = 2
@@ -128,7 +135,9 @@ class Compose(BaseCompose):
         p (float): probability of applying all list of transforms. Default: 1.0.
     """
 
-    def __init__(self, transforms, bbox_params=None, keypoint_params=None, additional_targets=None, p=1.0):
+    def __init__(
+        self, transforms, bbox_params=None, keypoint_params=None, additional_targets=None, p=1.0,
+    ):
         super(Compose, self).__init__([t for t in transforms if t is not None], p)
 
         self.processors = {}
@@ -279,7 +288,7 @@ class PerChannel(BaseCompose):
 
 class ReplayCompose(Compose):
     def __init__(
-        self, transforms, bbox_params=None, keypoint_params=None, additional_targets=None, p=1.0, save_key="replay"
+        self, transforms, bbox_params=None, keypoint_params=None, additional_targets=None, p=1.0, save_key="replay",
     ):
         super(ReplayCompose, self).__init__(transforms, bbox_params, keypoint_params, additional_targets, p)
         self.set_deterministic(True, save_key=save_key)
@@ -416,5 +425,7 @@ class KeypointParams(Params):
 
     def _to_dict(self):
         data = super(KeypointParams, self)._to_dict()
-        data.update({"remove_invisible": self.remove_invisible, "angle_in_degrees": self.angle_in_degrees})
+        data.update(
+            {"remove_invisible": self.remove_invisible, "angle_in_degrees": self.angle_in_degrees,}
+        )
         return data

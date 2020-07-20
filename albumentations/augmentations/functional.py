@@ -1441,6 +1441,14 @@ def from_float(img, dtype, max_value=None):
     return (img * max_value).astype(dtype)
 
 
+def mask_to_bbox(mask):
+    rows = np.any(mask, axis=1)
+    cols = np.any(mask, axis=0)
+    y_min, y_max = np.where(rows)[0][[0, -1]]
+    x_min, x_max = np.where(cols)[0][[0, -1]]
+    return x_min, y_min, x_max, y_max
+
+
 def bbox_vflip(bbox, rows, cols):  # skipcq: PYL-W0613
     """Flip a bounding box vertically around the x-axis.
 
@@ -1455,6 +1463,43 @@ def bbox_vflip(bbox, rows, cols):  # skipcq: PYL-W0613
     """
     x_min, y_min, x_max, y_max = bbox[:4]
     return x_min, 1 - y_max, x_max, 1 - y_min
+
+
+def bbox_optical_distortion(bbox, k, dx, dy, interpolation, border_mode, value, rows, cols):
+    mask = np.zeros((rows, cols), dtype=np.uint8)
+    bbox_denorm = denormalize_bbox(bbox, rows, cols)
+    x_min, y_min, x_max, y_max = map(int, bbox_denorm[:4])
+    mask[y_min:y_max, x_min:x_max] = 1
+    mask = optical_distortion(mask, k, dx, dy, interpolation, border_mode, value)
+    bbox = normalize_bbox(mask_to_bbox(mask), rows, cols)
+    return bbox
+
+
+def bbox_elastic_transform(
+    bbox,
+    alpha,
+    sigma,
+    alpha_affine,
+    rows,
+    cols,
+    interpolation=cv2.INTER_LINEAR,
+    border_mode=cv2.BORDER_REFLECT_101,
+    value=None,
+    random_state=None,
+    approximate=False,
+):
+    mask = np.zeros((rows, cols), dtype=np.uint8)
+    bbox_denorm = denormalize_bbox(bbox, rows, cols)
+    x_min, y_min, x_max, y_max = map(int, bbox_denorm[:4])
+    mask[y_min:y_max, x_min:x_max] = 1
+    mask = elastic_transform(
+        mask, alpha, sigma, alpha_affine, interpolation, border_mode, value, random_state, approximate,
+    )
+    try:
+        bbox = normalize_bbox(mask_to_bbox(mask), rows, cols)
+    except IndexError:
+        bbox = (bbox[0], bbox[1], 0.0, 0.0)
+    return bbox
 
 
 def bbox_hflip(bbox, rows, cols):  # skipcq: PYL-W0613

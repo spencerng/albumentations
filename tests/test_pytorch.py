@@ -42,7 +42,7 @@ def test_torch_to_tensor_augmentations(image, mask):
 
 def test_additional_targets_for_totensor():
     with pytest.warns(DeprecationWarning):
-        aug = A.Compose([ToTensor(num_classes=4)], additional_targets={"image2": "image", "mask2": "mask"})
+        aug = A.Compose([ToTensor(num_classes=4)], additional_targets={"image2": "image", "mask2": "mask"},)
     for _i in range(10):
         image1 = np.random.randint(low=0, high=256, size=(100, 100, 3), dtype=np.uint8)
         image2 = image1.copy()

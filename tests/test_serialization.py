@@ -95,7 +95,7 @@ AUGMENTATION_CLS_PARAMS = (
             },
         ],
         [A.JpegCompression, {"quality_lower": 10, "quality_upper": 80}],
-        [A.HueSaturationValue, {"hue_shift_limit": 70, "sat_shift_limit": 95, "val_shift_limit": 55}],
+        [A.HueSaturationValue, {"hue_shift_limit": 70, "sat_shift_limit": 95, "val_shift_limit": 55},],
         [A.RGBShift, {"r_shift_limit": 70, "g_shift_limit": 80, "b_shift_limit": 40}],
         [A.RandomBrightnessContrast, {"brightness_limit": 0.5, "contrast_limit": 0.8}],
         [A.Blur, {"blur_limit": 3}],
@@ -107,7 +107,7 @@ AUGMENTATION_CLS_PARAMS = (
         [A.RandomGamma, {"gamma_limit": (10, 90)}],
         [A.Cutout, {"num_holes": 4, "max_h_size": 4, "max_w_size": 4}],
         [A.CoarseDropout, {"max_holes": 4, "max_height": 4, "max_width": 4}],
-        [A.RandomSnow, {"snow_point_lower": 0.2, "snow_point_upper": 0.4, "brightness_coeff": 4}],
+        [A.RandomSnow, {"snow_point_lower": 0.2, "snow_point_upper": 0.4, "brightness_coeff": 4},],
         [
             A.RandomRain,
             {
@@ -121,7 +121,7 @@ AUGMENTATION_CLS_PARAMS = (
                 "rain_type": "heavy",
             },
         ],
-        [A.RandomFog, {"fog_coef_lower": 0.2, "fog_coef_upper": 0.8, "alpha_coef": 0.11}],
+        [A.RandomFog, {"fog_coef_lower": 0.2, "fog_coef_upper": 0.8, "alpha_coef": 0.11},],
         [
             A.RandomSunFlare,
             {
@@ -145,7 +145,7 @@ AUGMENTATION_CLS_PARAMS = (
         ],
         [
             A.PadIfNeeded,
-            {"min_height": 512, "min_width": 512, "border_mode": cv2.BORDER_CONSTANT, "value": (10, 10, 10)},
+            {"min_height": 512, "min_width": 512, "border_mode": cv2.BORDER_CONSTANT, "value": (10, 10, 10),},
         ],
         [
             A.Rotate,
@@ -204,7 +204,7 @@ AUGMENTATION_CLS_PARAMS = (
         [A.RandomSizedCrop, {"min_max_height": (4, 8), "height": 10, "width": 10}],
         [A.Crop, {"x_max": 64, "y_max": 64}],
         [A.ToFloat, {"max_value": 16536}],
-        [A.Normalize, {"mean": (0.385, 0.356, 0.306), "std": (0.129, 0.124, 0.125), "max_pixel_value": 100.0}],
+        [A.Normalize, {"mean": (0.385, 0.356, 0.306), "std": (0.129, 0.124, 0.125), "max_pixel_value": 100.0,},],
         [A.RandomBrightness, {"limit": 0.4}],
         [A.RandomContrast, {"limit": 0.4}],
         [A.RandomScale, {"scale_limit": 0.2, "interpolation": cv2.INTER_CUBIC}],
@@ -215,7 +215,7 @@ AUGMENTATION_CLS_PARAMS = (
         [A.Solarize, {"threshold": 32}],
         [A.Posterize, {"num_bits": 1}],
         [A.Equalize, {"mode": "pil", "by_channels": False}],
-        [A.MultiplicativeNoise, {"multiplier": (0.7, 2.3), "per_channel": True, "elementwise": True}],
+        [A.MultiplicativeNoise, {"multiplier": (0.7, 2.3), "per_channel": True, "elementwise": True},],
     ],
 )
 
@@ -526,8 +526,8 @@ def test_transform_pipeline_serialization(seed, image, mask):
                         A.RandomSizedCrop(min_max_height=(256, 1024), height=512, width=512, p=1),
                         A.OneOf(
                             [
-                                A.RandomSizedCrop(min_max_height=(256, 512), height=384, width=384, p=0.5),
-                                A.RandomSizedCrop(min_max_height=(256, 512), height=512, width=512, p=0.5),
+                                A.RandomSizedCrop(min_max_height=(256, 512), height=384, width=384, p=0.5,),
+                                A.RandomSizedCrop(min_max_height=(256, 512), height=512, width=512, p=0.5,),
                             ]
                         ),
                     ]
@@ -570,8 +570,8 @@ def test_transform_pipeline_serialization_with_bboxes(seed, image, bboxes, bbox_
     aug = A.Compose(
         [
             A.OneOrOther(
-                A.Compose([A.RandomRotate90(), A.OneOf([A.HorizontalFlip(p=0.5), A.VerticalFlip(p=0.5)])]),
-                A.Compose([A.Rotate(p=0.5), A.OneOf([A.HueSaturationValue(p=0.5), A.RGBShift(p=0.7)], p=1)]),
+                A.Compose([A.RandomRotate90(), A.OneOf([A.HorizontalFlip(p=0.5), A.VerticalFlip(p=0.5)]),]),
+                A.Compose([A.Rotate(p=0.5), A.OneOf([A.HueSaturationValue(p=0.5), A.RGBShift(p=0.7)], p=1),]),
             ),
             A.HorizontalFlip(p=1),
             A.RandomBrightnessContrast(p=0.5),
@@ -602,8 +602,8 @@ def test_transform_pipeline_serialization_with_keypoints(seed, image, keypoints,
     aug = A.Compose(
         [
             A.OneOrOther(
-                A.Compose([A.RandomRotate90(), A.OneOf([A.HorizontalFlip(p=0.5), A.VerticalFlip(p=0.5)])]),
-                A.Compose([A.Rotate(p=0.5), A.OneOf([A.HueSaturationValue(p=0.5), A.RGBShift(p=0.7)], p=1)]),
+                A.Compose([A.RandomRotate90(), A.OneOf([A.HorizontalFlip(p=0.5), A.VerticalFlip(p=0.5)]),]),
+                A.Compose([A.Rotate(p=0.5), A.OneOf([A.HueSaturationValue(p=0.5), A.RGBShift(p=0.7)], p=1),]),
             ),
             A.HorizontalFlip(p=1),
             A.RandomBrightnessContrast(p=0.5),
@@ -659,7 +659,7 @@ def test_transform_pipeline_serialization_with_keypoints(seed, image, keypoints,
 )
 @pytest.mark.parametrize("seed", TEST_SEEDS)
 def test_additional_targets_for_image_only_serialization(augmentation_cls, params, image, seed):
-    aug = A.Compose([augmentation_cls(always_apply=True, **params)], additional_targets={"image2": "image"})
+    aug = A.Compose([augmentation_cls(always_apply=True, **params)], additional_targets={"image2": "image"},)
     image2 = image.copy()
 
     serialized_aug = A.to_dict(aug)
@@ -687,7 +687,7 @@ def test_lambda_serialization(image, mask, albumentations_bboxes, keypoints, see
     def vflip_keypoint(keypoint, **kwargs):
         return F.keypoint_vflip(keypoint, **kwargs)
 
-    aug = A.Lambda(name="vflip", image=vflip_image, mask=vflip_mask, bbox=vflip_bbox, keypoint=vflip_keypoint, p=p)
+    aug = A.Lambda(name="vflip", image=vflip_image, mask=vflip_mask, bbox=vflip_bbox, keypoint=vflip_keypoint, p=p,)
 
     serialized_aug = A.to_dict(aug)
     deserialized_aug = A.from_dict(serialized_aug, lambda_transforms={"vflip": aug})

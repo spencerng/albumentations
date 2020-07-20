@@ -5,9 +5,20 @@ try:
 except ImportError:
     import imgaug.imgaug.augmenters as iaa
 
-from ..augmentations.bbox_utils import convert_bboxes_from_albumentations, convert_bboxes_to_albumentations
-from ..augmentations.keypoints_utils import convert_keypoints_from_albumentations, convert_keypoints_to_albumentations
-from ..core.transforms_interface import BasicTransform, DualTransform, ImageOnlyTransform, to_tuple
+from ..augmentations.bbox_utils import (
+    convert_bboxes_from_albumentations,
+    convert_bboxes_to_albumentations,
+)
+from ..augmentations.keypoints_utils import (
+    convert_keypoints_from_albumentations,
+    convert_keypoints_to_albumentations,
+)
+from ..core.transforms_interface import (
+    BasicTransform,
+    DualTransform,
+    ImageOnlyTransform,
+    to_tuple,
+)
 
 __all__ = [
     "BasicIAATransform",
@@ -87,7 +98,7 @@ class ImageOnlyIAATransform(ImageOnlyTransform, BasicIAATransform):
 
 class IAACropAndPad(DualIAATransform):
     def __init__(
-        self, px=None, percent=None, pad_mode="constant", pad_cval=0, keep_size=True, always_apply=False, p=1
+        self, px=None, percent=None, pad_mode="constant", pad_cval=0, keep_size=True, always_apply=False, p=1,
     ):
         super(IAACropAndPad, self).__init__(always_apply, p)
         self.px = px
@@ -214,7 +225,9 @@ class IAAAdditiveGaussianNoise(ImageOnlyIAATransform):
         image
     """
 
-    def __init__(self, loc=0, scale=(0.01 * 255, 0.05 * 255), per_channel=False, always_apply=False, p=0.5):
+    def __init__(
+        self, loc=0, scale=(0.01 * 255, 0.05 * 255), per_channel=False, always_apply=False, p=0.5,
+    ):
         super(IAAAdditiveGaussianNoise, self).__init__(always_apply, p)
         self.loc = loc
         self.scale = to_tuple(scale, 0.0)
@@ -245,7 +258,7 @@ class IAAPiecewiseAffine(DualIAATransform):
     """
 
     def __init__(
-        self, scale=(0.03, 0.05), nb_rows=4, nb_cols=4, order=1, cval=0, mode="constant", always_apply=False, p=0.5
+        self, scale=(0.03, 0.05), nb_rows=4, nb_cols=4, order=1, cval=0, mode="constant", always_apply=False, p=0.5,
     ):
         super(IAAPiecewiseAffine, self).__init__(always_apply, p)
         self.scale = to_tuple(scale, 0.0)
@@ -313,7 +326,16 @@ class IAAAffine(DualIAATransform):
         )
 
     def get_transform_init_args_names(self):
-        return ("scale", "translate_percent", "translate_px", "rotate", "shear", "order", "cval", "mode")
+        return (
+            "scale",
+            "translate_percent",
+            "translate_px",
+            "rotate",
+            "shear",
+            "order",
+            "cval",
+            "mode",
+        )
 
 
 class IAAPerspective(DualIAATransform):

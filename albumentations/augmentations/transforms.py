@@ -12,7 +12,12 @@ from skimage.measure import label
 
 from . import functional as F
 from .bbox_utils import denormalize_bbox, normalize_bbox, union_of_bboxes
-from ..core.transforms_interface import DualTransform, ImageOnlyTransform, NoOp, to_tuple
+from ..core.transforms_interface import (
+    DualTransform,
+    ImageOnlyTransform,
+    NoOp,
+    to_tuple,
+)
 from ..core.utils import format_args
 
 __all__ = [
@@ -140,18 +145,18 @@ class PadIfNeeded(DualTransform):
             w_pad_right = 0
 
         params.update(
-            {"pad_top": h_pad_top, "pad_bottom": h_pad_bottom, "pad_left": w_pad_left, "pad_right": w_pad_right}
+            {"pad_top": h_pad_top, "pad_bottom": h_pad_bottom, "pad_left": w_pad_left, "pad_right": w_pad_right,}
         )
         return params
 
     def apply(self, img, pad_top=0, pad_bottom=0, pad_left=0, pad_right=0, **params):
         return F.pad_with_params(
-            img, pad_top, pad_bottom, pad_left, pad_right, border_mode=self.border_mode, value=self.value
+            img, pad_top, pad_bottom, pad_left, pad_right, border_mode=self.border_mode, value=self.value,
         )
 
     def apply_to_mask(self, img, pad_top=0, pad_bottom=0, pad_left=0, pad_right=0, **params):
         return F.pad_with_params(
-            img, pad_top, pad_bottom, pad_left, pad_right, border_mode=self.border_mode, value=self.mask_value
+            img, pad_top, pad_bottom, pad_left, pad_right, border_mode=self.border_mode, value=self.mask_value,
         )
 
     def apply_to_bbox(self, bbox, pad_top=0, pad_bottom=0, pad_left=0, pad_right=0, rows=0, cols=0, **params):
@@ -578,7 +583,10 @@ class RandomScale(DualTransform):
         return F.keypoint_scale(keypoint, scale, scale)
 
     def get_transform_init_args(self):
-        return {"interpolation": self.interpolation, "scale_limit": to_tuple(self.scale_limit, bias=-1.0)}
+        return {
+            "interpolation": self.interpolation,
+            "scale_limit": to_tuple(self.scale_limit, bias=-1.0),
+        }
 
 
 class ShiftScaleRotate(DualTransform):
@@ -636,7 +644,7 @@ class ShiftScaleRotate(DualTransform):
         return F.shift_scale_rotate(img, angle, scale, dx, dy, interpolation, self.border_mode, self.value)
 
     def apply_to_mask(self, img, angle=0, scale=0, dx=0, dy=0, **params):
-        return F.shift_scale_rotate(img, angle, scale, dx, dy, cv2.INTER_NEAREST, self.border_mode, self.mask_value)
+        return F.shift_scale_rotate(img, angle, scale, dx, dy, cv2.INTER_NEAREST, self.border_mode, self.mask_value,)
 
     def apply_to_keypoint(self, keypoint, angle=0, scale=0, dx=0, dy=0, rows=0, cols=0, **params):
         return F.keypoint_shift_scale_rotate(keypoint, angle, scale, dx, dy, rows, cols)
@@ -840,10 +848,10 @@ class RandomSizedCrop(_BaseRandomSizedCrop):
     """
 
     def __init__(
-        self, min_max_height, height, width, w2h_ratio=1.0, interpolation=cv2.INTER_LINEAR, always_apply=False, p=1.0
+        self, min_max_height, height, width, w2h_ratio=1.0, interpolation=cv2.INTER_LINEAR, always_apply=False, p=1.0,
     ):
         super(RandomSizedCrop, self).__init__(
-            height=height, width=width, interpolation=interpolation, always_apply=always_apply, p=p
+            height=height, width=width, interpolation=interpolation, always_apply=always_apply, p=p,
         )
         self.min_max_height = min_max_height
         self.w2h_ratio = w2h_ratio
@@ -893,7 +901,7 @@ class RandomResizedCrop(_BaseRandomSizedCrop):
     ):
 
         super(RandomResizedCrop, self).__init__(
-            height=height, width=width, interpolation=interpolation, always_apply=always_apply, p=p
+            height=height, width=width, interpolation=interpolation, always_apply=always_apply, p=p,
         )
         self.scale = scale
         self.ratio = ratio
@@ -970,7 +978,9 @@ class RandomSizedBBoxSafeCrop(DualTransform):
         uint8, float32
     """
 
-    def __init__(self, height, width, erosion_rate=0.0, interpolation=cv2.INTER_LINEAR, always_apply=False, p=1.0):
+    def __init__(
+        self, height, width, erosion_rate=0.0, interpolation=cv2.INTER_LINEAR, always_apply=False, p=1.0,
+    ):
         super(RandomSizedBBoxSafeCrop, self).__init__(always_apply, p)
         self.height = height
         self.width = width
@@ -994,7 +1004,7 @@ class RandomSizedBBoxSafeCrop(DualTransform):
             }
         # get union of all bboxes
         x, y, x2, y2 = union_of_bboxes(
-            width=img_w, height=img_h, bboxes=params["bboxes"], erosion_rate=self.erosion_rate
+            width=img_w, height=img_h, bboxes=params["bboxes"], erosion_rate=self.erosion_rate,
         )
         # find bigger region
         bx, by = x * random.random(), y * random.random()
@@ -1004,7 +1014,12 @@ class RandomSizedBBoxSafeCrop(DualTransform):
         crop_width = img_w if bw >= 1.0 else int(img_w * bw)
         h_start = np.clip(0.0 if bh >= 1.0 else by / (1.0 - bh), 0.0, 1.0)
         w_start = np.clip(0.0 if bw >= 1.0 else bx / (1.0 - bw), 0.0, 1.0)
-        return {"h_start": h_start, "w_start": w_start, "crop_height": crop_height, "crop_width": crop_width}
+        return {
+            "h_start": h_start,
+            "w_start": w_start,
+            "crop_height": crop_height,
+            "crop_width": crop_width,
+        }
 
     def apply_to_bbox(self, bbox, crop_height=0, crop_width=0, h_start=0, w_start=0, rows=0, cols=0, **params):
         return F.bbox_random_crop(bbox, crop_height, crop_width, h_start, w_start, rows, cols)
@@ -1036,7 +1051,9 @@ class CropNonEmptyMaskIfExists(DualTransform):
         uint8, float32
     """
 
-    def __init__(self, height, width, ignore_values=None, ignore_channels=None, always_apply=False, p=1.0):
+    def __init__(
+        self, height, width, ignore_values=None, ignore_channels=None, always_apply=False, p=1.0,
+    ):
         super(CropNonEmptyMaskIfExists, self).__init__(always_apply, p)
 
         if ignore_values is not None and not isinstance(ignore_values, list):
@@ -1054,7 +1071,7 @@ class CropNonEmptyMaskIfExists(DualTransform):
 
     def apply_to_bbox(self, bbox, x_min=0, x_max=0, y_min=0, y_max=0, **params):
         return F.bbox_crop(
-            bbox, x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max, rows=params["rows"], cols=params["cols"]
+            bbox, x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max, rows=params["rows"], cols=params["cols"],
         )
 
     def apply_to_keypoint(self, keypoint, x_min=0, x_max=0, y_min=0, y_max=0, **params):
@@ -1158,6 +1175,11 @@ class OpticalDistortion(DualTransform):
     def apply(self, img, k=0, dx=0, dy=0, interpolation=cv2.INTER_LINEAR, **params):
         return F.optical_distortion(img, k, dx, dy, interpolation, self.border_mode, self.value)
 
+    def apply_to_bbox(self, bbox, k=0, dx=0, dy=0, **params):
+        return F.bbox_optical_distortion(
+            bbox, k, dx, dy, cv2.INTER_NEAREST, self.border_mode, self.value, params["rows"], params["cols"],
+        )
+
     def apply_to_mask(self, img, k=0, dx=0, dy=0, **params):
         return F.optical_distortion(img, k, dx, dy, cv2.INTER_NEAREST, self.border_mode, self.mask_value)
 
@@ -1169,7 +1191,14 @@ class OpticalDistortion(DualTransform):
         }
 
     def get_transform_init_args_names(self):
-        return ("distort_limit", "shift_limit", "interpolation", "border_mode", "value", "mask_value")
+        return (
+            "distort_limit",
+            "shift_limit",
+            "interpolation",
+            "border_mode",
+            "value",
+            "mask_value",
+        )
 
 
 class GridDistortion(DualTransform):
@@ -1216,11 +1245,11 @@ class GridDistortion(DualTransform):
         self.mask_value = mask_value
 
     def apply(self, img, stepsx=(), stepsy=(), interpolation=cv2.INTER_LINEAR, **params):
-        return F.grid_distortion(img, self.num_steps, stepsx, stepsy, interpolation, self.border_mode, self.value)
+        return F.grid_distortion(img, self.num_steps, stepsx, stepsy, interpolation, self.border_mode, self.value,)
 
     def apply_to_mask(self, img, stepsx=(), stepsy=(), **params):
         return F.grid_distortion(
-            img, self.num_steps, stepsx, stepsy, cv2.INTER_NEAREST, self.border_mode, self.mask_value
+            img, self.num_steps, stepsx, stepsy, cv2.INTER_NEAREST, self.border_mode, self.mask_value,
         )
 
     def get_params(self):
@@ -1229,7 +1258,14 @@ class GridDistortion(DualTransform):
         return {"stepsx": stepsx, "stepsy": stepsy}
 
     def get_transform_init_args_names(self):
-        return ("num_steps", "distort_limit", "interpolation", "border_mode", "value", "mask_value")
+        return (
+            "num_steps",
+            "distort_limit",
+            "interpolation",
+            "border_mode",
+            "value",
+            "mask_value",
+        )
 
 
 class ElasticTransform(DualTransform):
@@ -1301,6 +1337,21 @@ class ElasticTransform(DualTransform):
             self.approximate,
         )
 
+    def apply_to_bbox(self, bbox, random_state=None, **params):
+        return F.bbox_elastic_transform(
+            bbox,
+            self.alpha,
+            self.sigma,
+            self.alpha_affine,
+            params["rows"],
+            params["cols"],
+            cv2.INTER_NEAREST,
+            self.border_mode,
+            self.value,
+            np.random.RandomState(random_state),
+            self.approximate,
+        )
+
     def apply_to_mask(self, img, random_state=None, **params):
         return F.elastic_transform(
             img,
@@ -1318,7 +1369,16 @@ class ElasticTransform(DualTransform):
         return {"random_state": random.randint(0, 10000)}
 
     def get_transform_init_args_names(self):
-        return ("alpha", "sigma", "alpha_affine", "interpolation", "border_mode", "value", "mask_value", "approximate")
+        return (
+            "alpha",
+            "sigma",
+            "alpha_affine",
+            "interpolation",
+            "border_mode",
+            "value",
+            "mask_value",
+            "approximate",
+        )
 
 
 class RandomGridShuffle(DualTransform):
@@ -1425,7 +1485,7 @@ class Normalize(ImageOnlyTransform):
     """
 
     def __init__(
-        self, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), max_pixel_value=255.0, always_apply=False, p=1.0
+        self, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), max_pixel_value=255.0, always_apply=False, p=1.0,
     ):
         super(Normalize, self).__init__(always_apply, p)
         self.mean = mean
@@ -1460,13 +1520,17 @@ class Cutout(ImageOnlyTransform):
     |  https://github.com/aleju/imgaug/blob/master/imgaug/augmenters/arithmetic.py
     """
 
-    def __init__(self, num_holes=8, max_h_size=8, max_w_size=8, fill_value=0, always_apply=False, p=0.5):
+    def __init__(
+        self, num_holes=8, max_h_size=8, max_w_size=8, fill_value=0, always_apply=False, p=0.5,
+    ):
         super(Cutout, self).__init__(always_apply, p)
         self.num_holes = num_holes
         self.max_h_size = max_h_size
         self.max_w_size = max_w_size
         self.fill_value = fill_value
-        warnings.warn("This class has been deprecated. Please use CoarseDropout", DeprecationWarning)
+        warnings.warn(
+            "This class has been deprecated. Please use CoarseDropout", DeprecationWarning,
+        )
 
     def apply(self, image, fill_value=0, holes=(), **params):
         return F.cutout(image, holes, fill_value)
@@ -1577,7 +1641,14 @@ class CoarseDropout(ImageOnlyTransform):
         return ["image"]
 
     def get_transform_init_args_names(self):
-        return ("max_holes", "max_height", "max_width", "min_holes", "min_height", "min_width")
+        return (
+            "max_holes",
+            "max_height",
+            "max_width",
+            "min_holes",
+            "min_height",
+            "min_width",
+        )
 
 
 class ImageCompression(ImageOnlyTransform):
@@ -1635,7 +1706,10 @@ class ImageCompression(ImageOnlyTransform):
         if self.compression_type == ImageCompression.ImageCompressionType.WEBP:
             image_type = ".webp"
 
-        return {"quality": random.randint(self.quality_lower, self.quality_upper), "image_type": image_type}
+        return {
+            "quality": random.randint(self.quality_lower, self.quality_upper),
+            "image_type": image_type,
+        }
 
     def get_transform_init_args(self):
         return {
@@ -1667,10 +1741,15 @@ class JpegCompression(ImageCompression):
             always_apply=always_apply,
             p=p,
         )
-        warnings.warn("This class has been deprecated. Please use ImageCompression", DeprecationWarning)
+        warnings.warn(
+            "This class has been deprecated. Please use ImageCompression", DeprecationWarning,
+        )
 
     def get_transform_init_args(self):
-        return {"quality_lower": self.quality_lower, "quality_upper": self.quality_upper}
+        return {
+            "quality_lower": self.quality_lower,
+            "quality_upper": self.quality_upper,
+        }
 
 
 class RandomSnow(ImageOnlyTransform):
@@ -1690,7 +1769,9 @@ class RandomSnow(ImageOnlyTransform):
         uint8, float32
     """
 
-    def __init__(self, snow_point_lower=0.1, snow_point_upper=0.3, brightness_coeff=2.5, always_apply=False, p=0.5):
+    def __init__(
+        self, snow_point_lower=0.1, snow_point_upper=0.3, brightness_coeff=2.5, always_apply=False, p=0.5,
+    ):
         super(RandomSnow, self).__init__(always_apply, p)
 
         if not 0 <= snow_point_lower <= snow_point_upper <= 1:
@@ -1858,7 +1939,9 @@ class RandomFog(ImageOnlyTransform):
         uint8, float32
     """
 
-    def __init__(self, fog_coef_lower=0.3, fog_coef_upper=1, alpha_coef=0.08, always_apply=False, p=0.5):
+    def __init__(
+        self, fog_coef_lower=0.3, fog_coef_upper=1, alpha_coef=0.08, always_apply=False, p=0.5,
+    ):
         super(RandomFog, self).__init__(always_apply, p)
 
         if not 0 <= fog_coef_lower <= fog_coef_upper <= 1:
@@ -1948,7 +2031,7 @@ class RandomSunFlare(ImageOnlyTransform):
     ):
         super(RandomSunFlare, self).__init__(always_apply, p)
 
-        (flare_center_lower_x, flare_center_lower_y, flare_center_upper_x, flare_center_upper_y) = flare_roi
+        (flare_center_lower_x, flare_center_lower_y, flare_center_upper_x, flare_center_upper_y,) = flare_roi
 
         if (
             not 0 <= flare_center_lower_x < flare_center_upper_x <= 1
@@ -1981,7 +2064,7 @@ class RandomSunFlare(ImageOnlyTransform):
         self.src_color = src_color
 
     def apply(self, image, flare_center_x=0.5, flare_center_y=0.5, circles=(), **params):
-        return F.add_sun_flare(image, flare_center_x, flare_center_y, self.src_radius, self.src_color, circles)
+        return F.add_sun_flare(image, flare_center_x, flare_center_y, self.src_radius, self.src_color, circles,)
 
     @property
     def targets_as_params(self):
@@ -2020,9 +2103,13 @@ class RandomSunFlare(ImageOnlyTransform):
             g_color = random.randint(max(self.src_color[0] - 50, 0), self.src_color[0])
             b_color = random.randint(max(self.src_color[0] - 50, 0), self.src_color[0])
 
-            circles += [(alpha, (int(x[r]), int(y[r])), pow(rad, 3), (r_color, g_color, b_color))]
+            circles += [(alpha, (int(x[r]), int(y[r])), pow(rad, 3), (r_color, g_color, b_color),)]
 
-        return {"circles": circles, "flare_center_x": flare_center_x, "flare_center_y": flare_center_y}
+        return {
+            "circles": circles,
+            "flare_center_x": flare_center_x,
+            "flare_center_y": flare_center_y,
+        }
 
     def get_transform_init_args(self):
         return {
@@ -2124,7 +2211,12 @@ class RandomShadow(ImageOnlyTransform):
         return {"vertices_list": vertices_list}
 
     def get_transform_init_args_names(self):
-        return ("shadow_roi", "num_shadows_lower", "num_shadows_upper", "shadow_dimension")
+        return (
+            "shadow_roi",
+            "num_shadows_lower",
+            "num_shadows_upper",
+            "shadow_dimension",
+        )
 
 
 class HueSaturationValue(ImageOnlyTransform):
@@ -2146,7 +2238,9 @@ class HueSaturationValue(ImageOnlyTransform):
         uint8, float32
     """
 
-    def __init__(self, hue_shift_limit=20, sat_shift_limit=30, val_shift_limit=20, always_apply=False, p=0.5):
+    def __init__(
+        self, hue_shift_limit=20, sat_shift_limit=30, val_shift_limit=20, always_apply=False, p=0.5,
+    ):
         super(HueSaturationValue, self).__init__(always_apply, p)
         self.hue_shift_limit = to_tuple(hue_shift_limit)
         self.sat_shift_limit = to_tuple(sat_shift_limit)
@@ -2259,7 +2353,9 @@ class Equalize(ImageOnlyTransform):
         uint8
     """
 
-    def __init__(self, mode="cv", by_channels=True, mask=None, mask_params=(), always_apply=False, p=0.5):
+    def __init__(
+        self, mode="cv", by_channels=True, mask=None, mask_params=(), always_apply=False, p=0.5,
+    ):
         modes = ["cv", "pil"]
         if mode not in modes:
             raise ValueError("Unsupported equalization mode. Supports: {}. " "Got: {}".format(modes, mode))
@@ -2306,7 +2402,9 @@ class RGBShift(ImageOnlyTransform):
         uint8, float32
     """
 
-    def __init__(self, r_shift_limit=20, g_shift_limit=20, b_shift_limit=20, always_apply=False, p=0.5):
+    def __init__(
+        self, r_shift_limit=20, g_shift_limit=20, b_shift_limit=20, always_apply=False, p=0.5,
+    ):
         super(RGBShift, self).__init__(always_apply, p)
         self.r_shift_limit = to_tuple(r_shift_limit)
         self.g_shift_limit = to_tuple(g_shift_limit)
@@ -2345,7 +2443,9 @@ class RandomBrightnessContrast(ImageOnlyTransform):
         uint8, float32
     """
 
-    def __init__(self, brightness_limit=0.2, contrast_limit=0.2, brightness_by_max=True, always_apply=False, p=0.5):
+    def __init__(
+        self, brightness_limit=0.2, contrast_limit=0.2, brightness_by_max=True, always_apply=False, p=0.5,
+    ):
         super(RandomBrightnessContrast, self).__init__(always_apply, p)
         self.brightness_limit = to_tuple(brightness_limit)
         self.contrast_limit = to_tuple(contrast_limit)
@@ -2383,7 +2483,9 @@ class RandomBrightness(RandomBrightnessContrast):
         super(RandomBrightness, self).__init__(
             brightness_limit=limit, contrast_limit=0, always_apply=always_apply, p=p
         )
-        warnings.warn("This class has been deprecated. Please use RandomBrightnessContrast", DeprecationWarning)
+        warnings.warn(
+            "This class has been deprecated. Please use RandomBrightnessContrast", DeprecationWarning,
+        )
 
     def get_transform_init_args(self):
         return {"limit": self.brightness_limit}
@@ -2406,7 +2508,9 @@ class RandomContrast(RandomBrightnessContrast):
 
     def __init__(self, limit=0.2, always_apply=False, p=0.5):
         super(RandomContrast, self).__init__(brightness_limit=0, contrast_limit=limit, always_apply=always_apply, p=p)
-        warnings.warn("This class has been deprecated. Please use RandomBrightnessContrast", DeprecationWarning)
+        warnings.warn(
+            "This class has been deprecated. Please use RandomBrightnessContrast", DeprecationWarning,
+        )
 
     def get_transform_init_args(self):
         return {"limit": self.contrast_limit}
@@ -2913,7 +3017,9 @@ class Downscale(ImageOnlyTransform):
         uint8, float32
     """
 
-    def __init__(self, scale_min=0.25, scale_max=0.25, interpolation=cv2.INTER_NEAREST, always_apply=False, p=0.5):
+    def __init__(
+        self, scale_min=0.25, scale_max=0.25, interpolation=cv2.INTER_NEAREST, always_apply=False, p=0.5,
+    ):
         super(Downscale, self).__init__(always_apply, p)
         if scale_min > scale_max:
             raise ValueError("Expected scale_min be less or equal scale_max, got {} {}".format(scale_min, scale_max))
@@ -2927,7 +3033,10 @@ class Downscale(ImageOnlyTransform):
         return F.downscale(image, scale=scale, interpolation=interpolation)
 
     def get_params(self):
-        return {"scale": np.random.uniform(self.scale_min, self.scale_max), "interpolation": self.interpolation}
+        return {
+            "scale": np.random.uniform(self.scale_min, self.scale_max),
+            "interpolation": self.interpolation,
+        }
 
     def get_transform_init_args_names(self):
         return "scale_min", "scale_max", "interpolation"
@@ -2952,12 +3061,19 @@ class Lambda(NoOp):
         Any
     """
 
-    def __init__(self, image=None, mask=None, keypoint=None, bbox=None, name=None, always_apply=False, p=1.0):
+    def __init__(
+        self, image=None, mask=None, keypoint=None, bbox=None, name=None, always_apply=False, p=1.0,
+    ):
         super(Lambda, self).__init__(always_apply, p)
 
         self.name = name
         self.custom_apply_fns = {target_name: F.noop for target_name in ("image", "mask", "keypoint", "bbox")}
-        for target_name, custom_apply_fn in {"image": image, "mask": mask, "keypoint": keypoint, "bbox": bbox}.items():
+        for target_name, custom_apply_fn in {
+            "image": image,
+            "mask": mask,
+            "keypoint": keypoint,
+            "bbox": bbox,
+        }.items():
             if custom_apply_fn is not None:
                 if isinstance(custom_apply_fn, LambdaType) and custom_apply_fn.__name__ == "<lambda>":
                     warnings.warn(
@@ -3016,7 +3132,9 @@ class MultiplicativeNoise(ImageOnlyTransform):
         Any
     """
 
-    def __init__(self, multiplier=(0.9, 1.1), per_channel=False, elementwise=False, always_apply=False, p=0.5):
+    def __init__(
+        self, multiplier=(0.9, 1.1), per_channel=False, elementwise=False, always_apply=False, p=0.5,
+    ):
         super(MultiplicativeNoise, self).__init__(always_apply, p)
         self.multiplier = to_tuple(multiplier, multiplier)
         self.per_channel = per_channel
@@ -3106,7 +3224,9 @@ class MaskDropout(DualTransform):
     Inspired by https://www.kaggle.com/c/severstal-steel-defect-detection/discussion/114254
     """
 
-    def __init__(self, max_objects=1, image_fill_value=0, mask_fill_value=0, always_apply=False, p=0.5):
+    def __init__(
+        self, max_objects=1, image_fill_value=0, mask_fill_value=0, always_apply=False, p=0.5,
+    ):
         """
         Args:
             max_objects: Maximum number of labels that can be zeroed out. Can be tuple, in this case it's [min, max]
@@ -3200,7 +3320,9 @@ class GlassBlur(Blur):
     |  https://github.com/hendrycks/robustness/blob/master/ImageNet-C/create_c/make_imagenet_c.py
     """
 
-    def __init__(self, sigma=0.7, max_delta=4, iterations=2, always_apply=False, mode="fast", p=0.5):
+    def __init__(
+        self, sigma=0.7, max_delta=4, iterations=2, always_apply=False, mode="fast", p=0.5,
+    ):
         super(GlassBlur, self).__init__(always_apply=always_apply, p=p)
         if iterations < 1:
             raise ValueError("Iterations should be more or equal to 1, but we got {}".format(iterations))

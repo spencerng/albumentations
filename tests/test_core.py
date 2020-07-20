@@ -7,10 +7,25 @@ import cv2
 import numpy as np
 import pytest
 
-from albumentations.core.transforms_interface import to_tuple, ImageOnlyTransform, DualTransform
+from albumentations.core.transforms_interface import (
+    to_tuple,
+    ImageOnlyTransform,
+    DualTransform,
+)
 from albumentations.augmentations.bbox_utils import check_bboxes
-from albumentations.core.composition import OneOrOther, Compose, OneOf, PerChannel, ReplayCompose
-from albumentations.augmentations.transforms import HorizontalFlip, Rotate, Blur, MedianBlur
+from albumentations.core.composition import (
+    OneOrOther,
+    Compose,
+    OneOf,
+    PerChannel,
+    ReplayCompose,
+)
+from albumentations.augmentations.transforms import (
+    HorizontalFlip,
+    Rotate,
+    Blur,
+    MedianBlur,
+)
 
 
 def test_one_or_other():
@@ -70,7 +85,9 @@ def test_to_tuple():
 def test_image_only_transform(image, mask):
     height, width = image.shape[:2]
     with mock.patch.object(ImageOnlyTransform, "apply") as mocked_apply:
-        with mock.patch.object(ImageOnlyTransform, "get_params", return_value={"interpolation": cv2.INTER_LINEAR}):
+        with mock.patch.object(
+            ImageOnlyTransform, "get_params", return_value={"interpolation": cv2.INTER_LINEAR},
+        ):
             aug = ImageOnlyTransform(p=1)
             data = aug(image=image, mask=mask)
             mocked_apply.assert_called_once_with(image, interpolation=cv2.INTER_LINEAR, cols=width, rows=height)
@@ -81,7 +98,9 @@ def test_dual_transform(image, mask):
     image_call = call(image, interpolation=cv2.INTER_LINEAR, cols=image.shape[1], rows=image.shape[0])
     mask_call = call(mask, interpolation=cv2.INTER_NEAREST, cols=mask.shape[1], rows=mask.shape[0])
     with mock.patch.object(DualTransform, "apply") as mocked_apply:
-        with mock.patch.object(DualTransform, "get_params", return_value={"interpolation": cv2.INTER_LINEAR}):
+        with mock.patch.object(
+            DualTransform, "get_params", return_value={"interpolation": cv2.INTER_LINEAR},
+        ):
             aug = DualTransform(p=1)
             aug(image=image, mask=mask)
             mocked_apply.assert_has_calls([image_call, mask_call], any_order=True)
@@ -91,7 +110,9 @@ def test_additional_targets(image, mask):
     image_call = call(image, interpolation=cv2.INTER_LINEAR, cols=image.shape[1], rows=image.shape[0])
     image2_call = call(mask, interpolation=cv2.INTER_LINEAR, cols=mask.shape[1], rows=mask.shape[0])
     with mock.patch.object(DualTransform, "apply") as mocked_apply:
-        with mock.patch.object(DualTransform, "get_params", return_value={"interpolation": cv2.INTER_LINEAR}):
+        with mock.patch.object(
+            DualTransform, "get_params", return_value={"interpolation": cv2.INTER_LINEAR},
+        ):
             aug = DualTransform(p=1)
             aug.add_targets({"image2": "image"})
             aug(image=image, image2=mask)

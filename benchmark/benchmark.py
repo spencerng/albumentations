@@ -38,28 +38,44 @@ os.environ["VECLIB_MAXIMUM_THREADS"] = "1"  # noqa E402
 os.environ["NUMEXPR_NUM_THREADS"] = "1"  # noqa E402
 
 
-DEFAULT_BENCHMARKING_LIBRARIES = ["albumentations", "imgaug", "torchvision", "keras", "augmentor", "solt"]
+DEFAULT_BENCHMARKING_LIBRARIES = [
+    "albumentations",
+    "imgaug",
+    "torchvision",
+    "keras",
+    "augmentor",
+    "solt",
+]
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Augmentation libraries performance benchmark")
     parser.add_argument(
-        "-d", "--data-dir", metavar="DIR", default=os.environ.get("DATA_DIR"), help="path to a directory with images"
+        "-d", "--data-dir", metavar="DIR", default=os.environ.get("DATA_DIR"), help="path to a directory with images",
     )
     parser.add_argument(
-        "-i", "--images", default=2000, type=int, metavar="N", help="number of images for benchmarking (default: 2000)"
+        "-i",
+        "--images",
+        default=2000,
+        type=int,
+        metavar="N",
+        help="number of images for benchmarking (default: 2000)",
     )
     parser.add_argument(
-        "-l", "--libraries", default=DEFAULT_BENCHMARKING_LIBRARIES, nargs="+", help="list of libraries to benchmark"
+        "-l", "--libraries", default=DEFAULT_BENCHMARKING_LIBRARIES, nargs="+", help="list of libraries to benchmark",
     )
     parser.add_argument(
-        "-r", "--runs", default=5, type=int, metavar="N", help="number of runs for each benchmark (default: 5)"
+        "-r", "--runs", default=5, type=int, metavar="N", help="number of runs for each benchmark (default: 5)",
     )
     parser.add_argument(
-        "--show-std", dest="show_std", action="store_true", help="show standard deviation for benchmark runs"
+        "--show-std", dest="show_std", action="store_true", help="show standard deviation for benchmark runs",
     )
-    parser.add_argument("-p", "--print-package-versions", action="store_true", help="print versions of packages")
-    parser.add_argument("-m", "--markdown", action="store_true", help="print benchmarking results as a markdown table")
+    parser.add_argument(
+        "-p", "--print-package-versions", action="store_true", help="print versions of packages",
+    )
+    parser.add_argument(
+        "-m", "--markdown", action="store_true", help="print benchmarking results as a markdown table",
+    )
     return parser.parse_args()
 
 
@@ -126,9 +142,16 @@ class MarkdownGenerator:
         return value_matrix
 
     def _make_versions_text(self):
-        libraries = ["Python", "numpy", "pillow-simd", "opencv-python", "scikit-image", "scipy"]
+        libraries = [
+            "Python",
+            "numpy",
+            "pillow-simd",
+            "opencv-python",
+            "scikit-image",
+            "scipy",
+        ]
         libraries_with_versions = [
-            "{library} {version}".format(library=library, version=self._package_versions[library].replace("\n", ""))
+            "{library} {version}".format(library=library, version=self._package_versions[library].replace("\n", ""),)
             for library in libraries
         ]
         return "Python and library versions: {}.".format(", ".join(libraries_with_versions))
@@ -291,7 +314,7 @@ class Contrast(BenchmarkTest):
 class BrightnessContrast(BenchmarkTest):
     def __init__(self):
         self.imgaug_transform = iaa.Sequential(
-            [iaa.Multiply((1.5, 1.5), per_channel=False), iaa.Add((127, 127), per_channel=False)]
+            [iaa.Multiply((1.5, 1.5), per_channel=False), iaa.Add((127, 127), per_channel=False),]
         )
         self.augmentor_pipeline = Pipeline()
         self.augmentor_pipeline.add_operation(
@@ -315,14 +338,14 @@ class BrightnessContrast(BenchmarkTest):
 
     def augmentor(self, img):
         for operation in self.augmentor_pipeline.operations:
-            img, = operation.perform_operation([img])
+            (img,) = operation.perform_operation([img])
         return np.array(img, np.uint8, copy=True)
 
 
 class ShiftScaleRotate(BenchmarkTest):
     def __init__(self):
         self.imgaug_transform = iaa.Affine(
-            scale=(2, 2), rotate=(45, 45), translate_px=(50, 50), order=1, mode="reflect"
+            scale=(2, 2), rotate=(45, 45), translate_px=(50, 50), order=1, mode="reflect",
         )
 
     def albumentations(self, img):
@@ -405,10 +428,10 @@ class RandomSizedCrop_64_512(BenchmarkTest):
             Operations.Resize(probability=1, width=512, height=512, resample_filter="BILINEAR")
         )
         self.imgaug_transform = iaa.Sequential(
-            [iaa.CropToFixedSize(width=64, height=64), iaa.Scale(size=512, interpolation="linear")]
+            [iaa.CropToFixedSize(width=64, height=64), iaa.Scale(size=512, interpolation="linear"),]
         )
         self.solt_stream = slc.Stream(
-            [slt.CropTransform(crop_size=(64, 64), crop_mode="r"), slt.ResizeTransform(resize_to=(512, 512))]
+            [slt.CropTransform(crop_size=(64, 64), crop_mode="r"), slt.ResizeTransform(resize_to=(512, 512)),]
         )
 
     def albumentations(self, img):
@@ -417,7 +440,7 @@ class RandomSizedCrop_64_512(BenchmarkTest):
 
     def augmentor(self, img):
         for operation in self.augmentor_pipeline.operations:
-            img, = operation.perform_operation([img])
+            (img,) = operation.perform_operation([img])
         return np.array(img, np.uint8, copy=True)
 
     def torchvision_transform(self, img):
