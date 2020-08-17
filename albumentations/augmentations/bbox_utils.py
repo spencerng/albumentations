@@ -239,9 +239,9 @@ def convert_bbox_to_albumentations(bbox, source_format, rows, cols, check_validi
 
         x, y, width, height = denormalize_bbox(bbox, rows, cols)
 
-        x_min = x - width / 2 + 1
+        x_min = x - width / 2
         x_max = x_min + width
-        y_min = y - height / 2 + 1
+        y_min = y - height / 2
         y_max = y_min + height
     else:
         (x_min, y_min, x_max, y_max), tail = bbox[:4], tuple(bbox[4:])
@@ -325,7 +325,7 @@ def convert_bboxes_from_albumentations(bboxes, target_format, rows, cols, check_
 def check_bbox(bbox):
     """Check if bbox boundaries are in range 0, 1 and minimums are lesser then maximums"""
     # Tolerance for floating point operation rounding
-    tolerance = 0.001
+    tolerance = 0.01
     for name, value in zip(["x_min", "y_min", "x_max", "y_max"], bbox[:4]):
         if not 0 - tolerance <= value <= 1 + tolerance:
             raise ValueError(
